@@ -12,7 +12,7 @@
 
   <div class="search">
     <form action="{% url 'contact:search' %}" method="GET">
-      <input type="text" class="search-input" id="search" name="q" placeholder="Search" value=" {{ request.GET.q.strip }} ">
+      <input type="text" class="search-input" id="search" name="q" placeholder="Search" value="{{ request.GET.q.strip }}">
     </form>
   </div>
 
