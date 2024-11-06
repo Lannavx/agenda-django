@@ -4,11 +4,12 @@ from django.core.exceptions import ValidationError
 
 
 class ContactForm(forms.ModelForm):
-  first_name = forms.CharField(
-    widget=forms.TextInput(
-      attrs={'placeholder': 'Escreva aqui'}
-    ),
-    help_text= 'Texto de ajuda para o usuário',
+  picture = forms.ImageField(
+    widget=forms.FileInput(
+      attrs={
+        'accept': 'image/*'
+      }
+    )
   )
 
   class Meta:
@@ -16,6 +17,7 @@ class ContactForm(forms.ModelForm):
     fields = (
       'first_name', 'last_name', 'phone', 
       'email', 'description', 'category',
+      'picture',
       )
 
   def clean(self):
