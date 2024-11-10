@@ -2,9 +2,12 @@ from django.shortcuts import render, redirect
 from contact.forms import RegisterForm, RegisterUpdateForm
 from django.contrib import auth, messages
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.decorators import login_required
 
 
 def register(request):
+  '''Registra um novo usuário. Se o formulário for válido, salva o usuário e 
+  o redireciona para a página de login'''
   form = RegisterForm()
 
   if request.method == 'POST':
@@ -23,8 +26,11 @@ def register(request):
     }
   )
 
-
+@login_required(login_url='contact:login')
 def user_update(request):
+  '''Atualização dos dados do usuário autenticado. Exibe um formulário 
+  pré-preenchido com os dados do usuário. Processa as alterações submetidas 
+  e salva as atualizações'''
   form = RegisterUpdateForm(instance=request.user)
 
   if request.method != 'POST': 
@@ -52,6 +58,8 @@ def user_update(request):
 
 
 def login_view(request):
+  '''Autenticação de usuários.Processa as credenciais de login e se válidas,
+  loga o usuário'''
   form = AuthenticationForm(request)
 
   if request.method == 'POST':
@@ -72,6 +80,8 @@ def login_view(request):
     }
   )
 
+@login_required(login_url='contact:login')
 def logout_view(request):
+  '''Desconecta o usuário atual e o redireciona para a página de login'''
   auth.logout(request)
   return redirect('contact:login')

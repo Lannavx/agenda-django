@@ -6,12 +6,26 @@ from django.contrib.auth.models import User
 from django.contrib.auth import password_validation
 
 class ContactForm(forms.ModelForm):
+  '''Formulário para criação e atualização de contatos
+
+    Este formulário é baseado no modelo Contact e inclui campos para:
+    - Primeiro nome 
+    - Sobrenome
+    - Telefone
+    - E-mail
+    - Descrição
+    - Categoria
+    - Foto (opcional)
+
+    Validações personalizadas:
+    - Verifica se o primeiro nome não é igual ao sobrenome.'''
   picture = forms.ImageField(
     widget=forms.FileInput(
       attrs={
         'accept': 'image/*'
       }
-    )
+    ), 
+    required=False
   )
 
   class Meta:
@@ -23,6 +37,9 @@ class ContactForm(forms.ModelForm):
       )
 
   def clean(self):
+    '''Método de limpeza dos dados do formulário. Verifica se o primeiro 
+    nome e o sobrenome não são iguais. Se forem iguais, adiciona um erro de 
+    validação aos campos correspondentes'''
     cleaned_data = self.cleaned_data
     first_name = cleaned_data.get('first_name')
     last_name = cleaned_data.get('last_name')
@@ -36,6 +53,16 @@ class ContactForm(forms.ModelForm):
     return super().clean()
 
 class RegisterForm(UserCreationForm):
+  '''Formulário para registro de novos usuários
+
+    Extende o formulário padrão UserCreationForm do Django, adicionando 
+    campos obrigatórios para:
+    - Primeiro nome
+    - Sobrenome
+    - E-mail
+
+    Validações personalizadas:
+    - Verifica se o e-mail já está em uso por outro usuário.'''
   first_name = forms.CharField(
     required=True
   )
@@ -56,6 +83,9 @@ class RegisterForm(UserCreationForm):
     )
 
   def clean_email(self):
+    '''Valida o campo de e-mail, verificando se o e-mail fornecido já está 
+    registrado no sistema. Se estiver, adiciona um erro de validação 
+    ao campo de e-mail'''
     email = self.cleaned_data.get('email')
 
     if User.objects.filter(email=email).exists():
@@ -70,6 +100,20 @@ class RegisterForm(UserCreationForm):
     return email
   
 class RegisterUpdateForm(forms.ModelForm):
+  '''Formulário para atualização dos dados do usuário registrado
+
+    Inclui campos para:
+    - Primeiro nome
+    - Sobrenome
+    - E-mail
+    - Nome de usuário
+    - Senha (opcional)
+    - Confirmação de senha (opcional)
+
+    Validações personalizadas:
+    - Verifica se as senhas correspondem ao atualizar.
+    - Verifica se o e-mail é único ao atualizar.
+    - Valida a força da nova senha.'''
   first_name = forms.CharField(
     min_length=2,
     max_length=30,
@@ -110,6 +154,8 @@ class RegisterUpdateForm(forms.ModelForm):
     )
 
   def save(self, commit=True):
+    ''' Salva o usuário com os dados atualizados. Se uma nova senha for 
+    fornecida, atualiza a senha do usuário'''
     cleaned_data = self.cleaned_data
     user = super().save(commit=False)
     password = cleaned_data.get('password1')
@@ -123,6 +169,8 @@ class RegisterUpdateForm(forms.ModelForm):
     return user
 
   def clean(self):
+    ''' Valida os dados do formulário, verificando se as senhas 
+    correspondem quando fornecidas'''
     password1 = self.cleaned_data.get('password1')
     password2 = self.cleaned_data.get('password2')
 
@@ -136,6 +184,8 @@ class RegisterUpdateForm(forms.ModelForm):
     return super().clean()
 
   def clean_email(self):
+    ''' Valida o campo de e-mail e verifica se o e-mail fornecido já está
+    em uso por outro usuário ao atualizar o perfil'''
     email = self.cleaned_data.get('email')
     current_email = self.instance.email
 
@@ -149,6 +199,8 @@ class RegisterUpdateForm(forms.ModelForm):
       return email
 
   def clean_password1(self):
+    '''Valida a força da nova senha. Se uma nova senha for fornecida, 
+    valida usando os validadores padrão do Django'''
     password1 = self.cleaned_data.get('password1')
 
     if password1:
